@@ -1,0 +1,46 @@
+version: "3"
+services:
+  notebook:
+    build:
+      context: ./App
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./App:/App
+    networks:
+      vpcbr:
+        ipv4_address: 30.10.0.2
+  dash:
+    build:
+      context: ./App
+      dockerfile: Dockerfile.dash
+    container_name: dash_dash
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./App:/App
+    networks:
+      vpcbr:
+        ipv4_address: 30.10.0.3
+  db:
+    image: mysql:5.7
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: root
+      MYSQL_DATABASE: covid
+    volumes:
+      - ./DataBase:/docker-entrypoint-initdb.d/:ro
+    networks:
+      vpcbr:
+        ipv4_address: 30.10.0.4
+
+networks:
+  vpcbr:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 30.10.0.0/16
+         gateway: 30.10.0.1
